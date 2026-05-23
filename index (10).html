@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polizeidirektion Waldvilla // Tatort-Kommunikation</title>
+    <style>
+        /* CSS Reset & Font */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Haupt-Container */
+        #app-container {
+            width: 1000px;
+            height: 800px;
+            background-color: #fff;
+            border: 1px solid #d3d3d3;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #1a2a47;
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 50px;
+        }
+        #header-title {
+            font-weight: bold;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+        #secret-tag {
+            background-color: #a94442;
+            color: #fff;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* --- INFO-BLOCK --- */
+        #info-block {
+            background-color: #f7f8fa;
+            border-bottom: 1px solid #e1e4e8;
+            padding: 20px 30px;
+            font-size: 13px;
+            color: #555;
+            display: flex;
+            gap: 40px;
+        }
+        .info-col {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #1a2a47;
+            width: 130px;
+            display: inline-block;
+        }
+
+        /* --- INTERFACES (LOGIN & CHAT) --- */
+        #login-interface {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fcfcfc;
+        }
+        #login-box {
+            max-width: 450px;
+            width: 100%;
+            border: 1px solid #d3d3d3;
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 3px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        #main-interface {
+            display: none; /* Wird erst nach Login aktiv */
+            flex: 1;
+            flex-direction: column;
+            padding: 30px;
+            gap: 20px;
+        }
+
+        /* Chat-Ausgabe-Fenster */
+        #chat-container {
+            flex: 1;
+            border: 1px solid #e1e4e8;
+            background-color: #fcfcfc;
+            padding: 20px;
+            overflow-y: auto;
+            border-radius: 3px;
+        }
+
+        /* Nachricht-Stile */
+        .message {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        .message-prefix {
+            font-weight: bold;
+        }
+        .system {
+            color: #555;
+            font-style: italic;
+        }
+        .player {
+            color: #1a2a47;
+        }
+        .player-prefix {
+            color: #1a2a47;
+        }
+        .bot {
+            color: #333;
+        }
+        .bot-prefix {
+            color: #a94442;
+        }
+        .error-msg {
+            color: #a94442;
+            margin-top: 15px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        /* --- BEWEISFOTO-STYLING --- */
+        .evidence-photo {
+            display: block;
+            max-width: 280px;
+            height: auto;
+            margin: 10px 0 15px 0;
+            padding: 8px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 2px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+
+        /* --- INPUTS & BUTTONS --- */
+        .input-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        input[type="text"], input[type="password"] {
+            flex: 1;
+            background-color: #fff;
+            border: 1px solid #b3b3b3;
+            color: #333;
+            padding: 12px 15px;
+            font-family: inherit;
+            font-size: 14px;
+            border-radius: 3px;
+            height: 40px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #1a2a47;
+        }
+        button {
+            background-color: #2c3e50;
+            color: #fff;
+            border: none;
+            padding: 0 25px;
+            height: 40px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 13px;
+            text-transform: uppercase;
+            border-radius: 3px;
+            letter-spacing: 1px;
+        }
+        button:hover {
+            background-color: #1a2a47;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background-color: #f7f8fa;
+            border-top: 1px solid #e1e4e8;
+            padding: 10px 30px;
+            font-size: 11px;
+            color: #888;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <header>
+            <div id="header-title">POLIZEIDIREKTION WALDVILLA // TATORT-KOMMUNIKATION</div>
+            <div id="secret-tag">NUR FÜR DIENSTSTELLE // STRENG GEHEIM</div>
+        </header>
+
+        <div id="info-block">
+            <div class="info-col">
+                <div><span class="info-label">Dienststelle:</span>Polizeidirektion Waldvilla // Kriminalhauptkommissariat</div>
+                <div><span class="info-label">Fall-Zugehörigkeit:</span>Sonderkommission SOKO „Waldvilla“</div>
+            </div>
+            <div class="info-col">
+                <div><span class="info-label">System-Status:</span>Abfrage-Modul active | Authentifiziert als Sondereinheit</div>
+                <div><span class="info-label">Aktuelle Zeit:</span><span id="current-time">Lade Systemzeit...</span></div>
+            </div>
+        </div>
+
+        <div id="login-interface">
+            <div id="login-box">
+                <h3 style="color: #1a2a47; margin-bottom: 10px; font-size: 16px;">ZUGANGSKONTROLLE DETEKTIV-TERMINAL</h3>
+                <p style="font-size: 13px; color: #666; margin-bottom: 25px;">Geben Sie Ihre Autorisierungsdaten ein, um die gesicherte Verbindung herzustellen.</p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <input type="password" id="password-input" placeholder="" onkeypress="handleLoginKeyPress(event)">
+                    <button onclick="checkPassword()">Verbindung aufbauen</button>
+                </div>
+                <div id="login-error" class="error-msg"></div>
+            </div>
+        </div>
+
+        <div id="main-interface">
+            <div id="chat-container">
+                <div class="message system">Verbindung zum Tatort gesichert. Bereit für Protokoll-Befehle.</div>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="user-input" placeholder="" onkeypress="handleChatKeyPress(event)">
+                <button onclick="sendMessage()">Befehl Senden</button>
+            </div>
+        </div>
+
+        <footer>
+            <div>STATUS: VERBINDUNG VERSCHLÜSSELT (SSL)</div>
+            <div>POLIZEIDIREKTION WALDVILLA © 2026</div>
+        </footer>
+
+    </div>
+
+    <script>
+        // --- LIVE-UHR LOGIK ---
+        function updateClock() {
+            const infoClock = document.getElementById('current-time');
+            if (!infoClock) return;
+            
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            infoClock.textContent = `${day}.${month}.${year}, ${hours}:${minutes}:${seconds}`;
+        }
+        setInterval(updateClock, 1000);
+
+        // --- LOGIN LOGIK ---
+        const CORRECT_PASSWORD = "18.05.2026_Waldvilla";
+
+        function handleLoginKeyPress(event) {
+            if (event.key === 'Enter') {
+                checkPassword();
+            }
+        }
+
+        function checkPassword() {
+            const passwordField = document.getElementById('password-input');
+            const errorField = document.getElementById('login-error');
+            
+            if (passwordField.value === CORRECT_PASSWORD) {
+                document.getElementById('login-interface').style.display = 'none';
+                document.getElementById('main-interface').style.display = 'flex';
+                document.getElementById('user-input').focus();
+                updateClock();
+            } else {
+                errorField.textContent = "ZUGRIFF VERWEIGERT: Ungültiges Krypto-Token.";
+                passwordField.value = "";
+            }
+        }
+
+        // --- CHAT LOGIK & TABELLE ---
+        const database = [
+            {
+                keywords: ["arbeitszimmer", "schreibtisch", "büro", "arbeitsplatz", "schublade", "schubladen", "arbeitszimmer durchsuchen"],
+                answer: "[BOT]: Sektor Arbeitszimmer gesichert. Bei der Durchsuchung des Schreibtisches und der Schubladen werden folgende Objekte asserviert: Eine handschriftliche, persönliche Notiz des Opfers, die unordentlich auf der Schreibunterlage lag. Inhalt: „Testament unbedingt ändern! Nachdem sie von der Tagung wieder da sind (DOK-01).“ Auf dem PC Ein Persönlicher Kalender (BildCode1)<br><img src='Bilder/BildCode1.png' alt='Kalender' class='evidence-photo'><br>Ein gerahmtes Foto auf dem Schreibtisch, das den Verstorbenen zeigt. (FOTO-01)<br><img src='Bilder/FOTO-01.png' alt='Foto' class='evidence-photo'><br>Eine edle Visitenkarte einer Privatdetektei. (Daktyloskopischer Befund #3.2, Bild_2)<br><img src='Bilder/Bild_2.png' alt='Befund 2' class='evidence-photo'><br>Eine Visitenkarte Notariat Gerda-Becker: (Laborbefund Daktyloskopischer Befund #5, DOK-02 Notariat_Gerda-Becker, Bild_3)<br><img src='Bilder/Bild_3.png' alt='Befund 3' class='evidence-photo'>"
+            },
+            {
+                keywords: ["kaminzimmer", "sofa", "kamin", "wohnzimmer", "couch", "kaminzimmer durchsuchen"],
+                answer: "[BOT]: Sektor Kaminzimmer überprüft. Im Kamin ist die Asche kalt. Es wurden hier keine Dokumentenreste gefunden. Der Raum ist ansonsten sauber. Keine Spuren von Kampf oder Blut. Das Sofa ist zerwühlt. Es sieht aus, als hätte jemand darauf geschlafen. Nachtrag: gründlicher untersuchung des Bodens unter dem Sofa mein Handy viel dort hin) konnte ich eine Tablette sichern Asservat 6."
+            },
+            {
+                keywords: ["feuerschale", "feuerstelle", "gartenfeuer", "asche", "feuerschale durchsuchen"],
+                answer: "[BOT]: Sektor Garten-Feuerstelle. Die Spurensicherung meldet eine Entdeckung in der noch leicht glimmenden Asche: ASS-04 (Inhalt der Feuerschale: Akten-Fragment, Gehstock-Knauf, Stoffreste) 1. Akte in Asche: Es sieht aus, als hätte jemand versucht, eine Akte hastig zu verbrennen. Fast alles ist zerstört, aber eine halb verbrannte Akte konnte gerettet werden (Asservat 4). das Logo auf den Akten schwach zu erkennen. Bild_4)<br><img src='Bilder/Bild_4.png' alt='Bild 4' class='evidence-photo'><br>2. Verkohltes Holz: verbrannten Reste eines hölzernen Gehstocks. Der metallische, schwere Knauf ist geschwärzt, aber intakt. Es konnten keine Fingerabdrücke gesichert werden. Asservat 5"
+            },
+            {
+                keywords: ["gartenparty", "pavillon", "festzelt", "zentralbereich", "gartenparty-bereich", "pavillon durchsuchen"],
+                answer: "[BOT]: Sektor Gartenparty/ Zentral-Pavillon überprüft. Der Bereich ist für eine feierliche Gesellschaft hergerichtet. Auf den Tischen finden sich ausgebrannte Reste von Tisch-Feuerwerken und Dekoration. Keine direkten Spuren einer Gewalttat im unmittelbaren Festbereich."
+            },
+            {
+                keywords: ["leichenfundort", "leiche", "fundort", "betonsockel", "leichenfundort untersuchen", "dr. becker", "opfer"],
+                answer: "[BOT]: Tatort-Sektor Leichenfundort gesperrt. Der Körper von Dr. Becker wurde hinter dem cremefarbenen Betonsockel am Pavillonrand aufgefunden. Das Opfer liegt in Rückenlage. Eine schwere, klaffende Kopfverletzung ist sichtbar, die mit dem Aufprall auf die Kante des Betonsockels korrespondiert. In der Sakkotasche des Opfers befindet sich eine mechanische Taschenuhr. Das Glas ist komplett zersplittert, das Werk blockiert. GEG-01 (Die beschädigte Taschenuhr)"
+            },
+            {
+                keywords: ["blut", "blut der leiche", "blut untersuchen", "laborbericht"],
+                answer: "Das Blut der Leiche wurde zur untersuchung uns Labor geschickt. Laborbericht zu Asservat 3"
+            },
+            {
+                keywords: ["parkplatz", "einfahrt", "tor", "auto", "kamera", "pkw", "parkplatz überprüfen"],
+                answer: "[BOT]: Sektor Außenbereich / Parkplatz gesichert. Auf dem Parkstreifen steht der verschlossene PKW der Finanzberaterin. Am Haupttor befindet sich eine funktionstüchtige Überwachungskamera der Villa. Die daten werden vom Labor ausgewertet (Kamera 1)"
+            },
+            {
+                keywords: ["passwort", "forensik datenbank", "passwort für die forensik datenbank"],
+                answer: "Bitte entschuldigt das ihr es nicht von anfang an in der Akte hattet. Unsere Systeme funktionieren so: erst das Datum numerisch. dann einen Unterstrich und dann den Namen des Falles."
+            },
+            {
+                keywords: ["telefon", "sohn", "telefon daten des sohnes", "handy sohn"],
+                answer: "Ich habe das Telefon des Sohnes ins Labor geschickt. Telefon 1"
+            },
+            {
+                keywords: ["kleidung", "finanzberaterin", "kleidung finanzberaterin"],
+                answer: "Die Kleidung wurde ins Labor gesickt und is unter Laborbericht zu Asservat 1 zu finden."
+            },
+            {
+                keywords: ["taschen", "taschen sohn", "untersuchung taschen sohn", "kapsel"],
+                answer: "es konnte eine Kapsel Sichergestellt werden. Sie wurde an das Labor übergeben. Asservat 7"
+            },
+            {
+                keywords: ["blut sohn", "untersuchung blut sohn", "blutprobe sohn"],
+                answer: "Ich habe dem Sohn trotz großem Protest Blut abgenommen. (Blutuntersuchung 1)"
+            },
+            {
+                keywords: ["analyse", "untersuchung", "daten"],
+                answer: "Ich habe die Daten dem Labor übergaben"
+            },
+            {
+                keywords: ["brandwunde", "beraterin", "brandwunde beraterin", "brandwunde finanzberaterin"],
+                answer: "Daktyloskopischer Befund #7"
+            }
+        ];
+
+        const defaultAnswer = "Fehler: Befehl nicht im Protokoll gefunden. Überprüfen Sie die Eingabe.";
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const inputField = document.getElementById('user-input');
+            const query = inputField.value.trim();
+            
+            if (query === "") return;
+
+            appendMessage("SOKO", query, "player");
+            inputField.value = "";
+
+            let foundAnswer = null;
+            const lowerQuery = query.toLowerCase();
+
+            for (const entry of database) {
+                const match = entry.keywords.some(keyword => 
+                    lowerQuery.includes(keyword.toLowerCase()) || keyword.toLowerCase().includes(lowerQuery)
+                );
+                
+                if (match) {
+                    foundAnswer = entry.answer;
+                    break;
+                }
+            }
+
+            if (!foundAnswer) {
+                foundAnswer = defaultAnswer;
+            }
+
+            setTimeout(() => {
+                appendMessage("Polizei", foundAnswer, "bot");
+            }, 800);
+        }
+
+        function appendMessage(sender, text, cssClass) {
+            const chatContainer = document.getElementById('chat-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${cssClass}`;
+            
+            const prefixClass = cssClass + "-prefix";
+            messageDiv.innerHTML = `<span class="message-prefix ${prefixClass}">${sender}:</span> ${text}`;
+            chatContainer.appendChild(messageDiv);
+            
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    </script>
+</body>
+</html>
